@@ -3,10 +3,9 @@ package com.bhs.springsecuritydemo.configs;
 import com.bhs.springsecuritydemo.services.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.antlr.v4.runtime.misc.NotNull;
-import org.springframework.lang.NonNullApi;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -41,15 +40,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
 
-        final String authHeader = request.getHeader("Authorization");
-
-        if(authHeader == null || !authHeader.startsWith("Bearer ")){
+        if(request.getCookies() == null){
             filterChain.doFilter(request,response);
             return;
         }
 
         try{
-            final String jwtToken = authHeader.substring(7);
+            String jwtToken = null;
+            for(Cookie cookie : request.getCookies()){
+                    if(cookie.getName().equals("JwtToken")){
+                        jwtToken = cookie.getValue();
+                        System.out.println(jwtToken);
+                        break;
+                    }
+            }
+
             final String email = jwtService.extractUsername(jwtToken);
 
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

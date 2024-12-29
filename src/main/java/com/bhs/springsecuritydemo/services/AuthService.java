@@ -4,7 +4,6 @@ import com.bhs.springsecuritydemo.dtos.SignInDto;
 import com.bhs.springsecuritydemo.dtos.SignUpDto;
 import com.bhs.springsecuritydemo.models.User;
 import com.bhs.springsecuritydemo.repositories.UserRepository;
-import com.bhs.springsecuritydemo.responses.SignInResponse;
 import com.bhs.springsecuritydemo.responses.SignUpResponse;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -62,16 +61,9 @@ public class AuthService {
             User authenticatedUser = userRepository.findUserByEmail(userDetails.getEmail())
                     .orElseThrow(() -> new UsernameNotFoundException("user not found"));
 
-            String jwtToken = jwtService.generateToken(authenticatedUser);
-            return Optional.of(SignInResponse
-                    .builder()
-                    .email(authenticatedUser.getEmail())
-                    .name(authenticatedUser.getName())
-                    .token(jwtToken)
-                    .expiration(jwtService.getExpirationTime())
-                    .build());
+            return Optional.of(jwtService.generateToken(authenticatedUser));
         } catch (Exception e) {
-            return Optional.of(e.getMessage());
+            return Optional.of(e);
         }
     }
 
