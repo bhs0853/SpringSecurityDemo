@@ -3,6 +3,7 @@ package com.bhs.springsecuritydemo.controllers;
 import com.bhs.springsecuritydemo.dtos.SignInDto;
 import com.bhs.springsecuritydemo.dtos.SignUpDto;
 import com.bhs.springsecuritydemo.responses.SignUpResponse;
+import com.bhs.springsecuritydemo.responses.validUserResponse;
 import com.bhs.springsecuritydemo.services.AuthService;
 import com.bhs.springsecuritydemo.services.JwtService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -24,6 +25,11 @@ public class AuthController {
     public AuthController(AuthService authService, JwtService jwtService){
         this.authService = authService;
         this.jwtService = jwtService;
+    }
+
+    @GetMapping("/validate")
+    public ResponseEntity<validUserResponse> validateUser(){
+        return ResponseEntity.ok(new validUserResponse());
     }
 
     @PostMapping("/signup")
@@ -55,4 +61,5 @@ public class AuthController {
         Exception e = (Exception) response.get();
         return ResponseEntity.ok(e.getMessage());
     }
+
 }

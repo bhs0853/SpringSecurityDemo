@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -35,10 +37,12 @@ public class User implements UserDetails {
     private String password;
 
     @Temporal(TemporalType.TIMESTAMP)
+    @CreatedDate
     @Column(updatable = false, nullable = false, name = "created_at")
     private Date createdAt;
 
     @Temporal(TemporalType.TIMESTAMP)
+    @LastModifiedDate
     @Column(nullable = false, name = "updated_at")
     private Date updatedAt;
 

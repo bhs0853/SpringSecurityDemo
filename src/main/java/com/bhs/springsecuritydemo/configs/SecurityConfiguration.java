@@ -39,6 +39,7 @@ public class SecurityConfiguration {
                                         .requestMatchers("/api/v1/auth/signin").permitAll()
                                         .requestMatchers("/api/v1/users").authenticated()
                                         .requestMatchers("/api/v1/users/*").authenticated()
+                                        .requestMatchers("api/v1/auth/validate").authenticated()
                 )
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

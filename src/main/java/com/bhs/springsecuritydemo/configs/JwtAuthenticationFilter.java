@@ -6,12 +6,16 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
@@ -25,6 +29,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
     private final HandlerExceptionResolver handlerExceptionResolver;
 
+    private final RequestMatcher[] urlMatchers = new RequestMatcher[]
+            {new AntPathRequestMatcher("/api/v1/auth/validate", HttpMethod.GET.name()),
+            new AntPathRequestMatcher("/api/v1/users/me",HttpMethod.GET.name()),
+            new AntPathRequestMatcher("/api/v1/users",HttpMethod.GET.name())};
+
     public JwtAuthenticationFilter(
             JwtService jwtService,
             UserDetailsService userDetailsService,
@@ -32,6 +41,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
         this.handlerExceptionResolver = handlerExceptionResolver;
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request){
+        for(RequestMatcher urlMatcher : urlMatchers){
+            RequestMatcher matcher = new NegatedRequestMatcher(urlMatcher);
+            if(!matcher.matches(request)){
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
@@ -50,7 +70,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             for(Cookie cookie : request.getCookies()){
                     if(cookie.getName().equals("JwtToken")){
                         jwtToken = cookie.getValue();
-                        System.out.println(jwtToken);
                         break;
                     }
             }
